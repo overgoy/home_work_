@@ -23,6 +23,5 @@ func init() {
 
 	staff, err = reader.ReadJSON(path)
 	fmt.Print(err)
-
 	printer.PrintStaff(staff)
 }
