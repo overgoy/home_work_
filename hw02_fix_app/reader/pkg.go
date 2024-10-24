@@ -18,18 +18,15 @@ func ReadJSON(filePath string) ([]types.Employee, error) {
 
 	bytes, err := io.ReadAll(f)
 	if err != nil {
-		fmt.Printf("Error: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
 
 	var data []types.Employee
 
 	err = json.Unmarshal(bytes, &data)
 	if err != nil {
-		fmt.Printf("Error: %v", err)
+		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
 
-	res := data
-
-	return res, nil
+	return data, nil
 }
