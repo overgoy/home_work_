@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/fixme_my_friend/hw02_fix_app/types"
 
 	"github.com/fixme_my_friend/hw02_fix_app/printer"
 	"github.com/fixme_my_friend/hw02_fix_app/reader"
+	"github.com/fixme_my_friend/hw02_fix_app/types"
 )
 
 func main() {
