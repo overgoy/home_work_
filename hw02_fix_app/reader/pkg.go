@@ -14,16 +14,20 @@ func ReadJSON(filePath string) ([]types.Employee, error) {
 	if err != nil {
 		fmt.Printf("Error: %v", err)
 	}
+	defer f.Close()
 
 	bytes, err := io.ReadAll(f)
 	if err != nil {
 		fmt.Printf("Error: %v", err)
-		return nil, nil
+		return nil, err
 	}
 
 	var data []types.Employee
 
 	err = json.Unmarshal(bytes, &data)
+	if err != nil {
+		fmt.Printf("Error: %v", err)
+	}
 
 	res := data
 
