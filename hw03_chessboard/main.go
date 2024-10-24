@@ -17,5 +17,4 @@ func main() {
 		}
 		fmt.Println()
 	}
-
 }
