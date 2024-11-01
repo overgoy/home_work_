@@ -71,6 +71,10 @@ type BookComparator struct {
 	mode ComparisonMode
 }
 
+func NewBookComparator(mode ComparisonMode) *BookComparator {
+	return &BookComparator{mode: mode}
+}
+
 func (c *BookComparator) Compare(book1, book2 *Book) bool {
 	switch c.mode {
 	case ByYear:
@@ -88,9 +92,9 @@ func main() {
 	book1 := NewBook(1, "Go Programming", "John Doe", 2020, 300, 4.5)
 	book2 := NewBook(2, "Learning Go", "Jane Smith", 2021, 250, 4.7)
 
-	comparatorByYear := &BookComparator{mode: ByYear}
-	comparatorBySize := &BookComparator{mode: BySize}
-	comparatorByRate := &BookComparator{mode: ByRate}
+	comparatorByYear := NewBookComparator(ByYear)
+	comparatorBySize := NewBookComparator(BySize)
+	comparatorByRate := NewBookComparator(ByRate)
 
 	fmt.Println("Сравнение по году:", comparatorByYear.Compare(book1, book2))
 	fmt.Println("Сравнение по размеру:", comparatorBySize.Compare(book1, book2))
