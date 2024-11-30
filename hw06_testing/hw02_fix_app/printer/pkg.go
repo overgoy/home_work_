@@ -2,8 +2,7 @@ package printer
 
 import (
 	"fmt"
-	"github.com/overgoy/home_work_/hw06_testing/hw02/types"
-)
+	"github.com/overgoy/home_work_/hw06_testing/hw02/type)
 
 func FormatEmployeeData(employee types.Employee) string {
 	return fmt.Sprintf("User ID: %d; Age: %d; Name: %s; Department ID: %d; ",
