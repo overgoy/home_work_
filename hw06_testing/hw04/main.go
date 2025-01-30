@@ -88,15 +88,26 @@ func (c *BookComparator) Compare(book1, book2 *Book) bool {
 	}
 }
 
+func CompareBooksByYear(book1, book2 *Book) bool {
+	comparator := NewBookComparator(ByYear)
+	return comparator.Compare(book1, book2)
+}
+
+func CompareBooksBySize(book1, book2 *Book) bool {
+	comparator := NewBookComparator(BySize)
+	return comparator.Compare(book1, book2)
+}
+
+func CompareBooksByRate(book1, book2 *Book) bool {
+	comparator := NewBookComparator(ByRate)
+	return comparator.Compare(book1, book2)
+}
+
 func main() {
 	book1 := NewBook(1, "Go Programming", "John Doe", 2020, 300, 4.5)
 	book2 := NewBook(2, "Learning Go", "Jane Smith", 2021, 250, 4.7)
 
-	comparatorByYear := NewBookComparator(ByYear)
-	comparatorBySize := NewBookComparator(BySize)
-	comparatorByRate := NewBookComparator(ByRate)
-
-	fmt.Println("Сравнение по году:", comparatorByYear.Compare(book1, book2))
-	fmt.Println("Сравнение по размеру:", comparatorBySize.Compare(book1, book2))
-	fmt.Println("Сравнение по рейтингу:", comparatorByRate.Compare(book1, book2))
+	fmt.Println("Сравнение по году:", CompareBooksByYear(book1, book2))
+	fmt.Println("Сравнение по размеру:", CompareBooksBySize(book1, book2))
+	fmt.Println("Сравнение по рейтингу:", CompareBooksByRate(book1, book2))
 }
