@@ -28,7 +28,7 @@ func binarySearch(arr []int, target int) int {
 }
 
 func main() {
-	fmt.Println("Введите элементы массива, разделенные пробелами:")
+	fmt.Println("Введит элементы массива, разделенные пробелами:")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	input := scanner.Text()
