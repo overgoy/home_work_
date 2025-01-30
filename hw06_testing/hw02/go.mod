@@ -1,6 +1,6 @@
 module github.com/overgoy/home_work_/hw06_testing/hw02
 
-go 1.23.2
+go 1.20
 
 require github.com/stretchr/testify v1.9.0
 
