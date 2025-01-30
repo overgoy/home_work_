@@ -35,6 +35,6 @@ func main() {
 		fmt.Println("Error:", err)
 		return
 	}
-	
+
 	printStaff(staff)
 }
