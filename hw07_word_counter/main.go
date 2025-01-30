@@ -18,6 +18,7 @@ func countWords(text string) map[string]int {
 
 	words := strings.Fields(text)
 	for _, word := range words {
+		word = strings.Trim(word, ",.!?;:")
 		wordCount[word]++
 	}
 
