@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -14,6 +12,7 @@ func binarySearch(arr []int, target int) int {
 
 	for left <= right {
 		mid := left + (right-left)/2
+
 		if arr[mid] == target {
 			return mid
 		}
@@ -28,15 +27,17 @@ func binarySearch(arr []int, target int) int {
 }
 
 func main() {
-	fmt.Println("Введит элементы массива, разделенные пробелами:")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	input := scanner.Text()
+	fmt.Println("Введите элементы массива, разделенные пробелами:")
+
+	var input string
+	fmt.Scanln(&input)
 
 	parts := strings.Fields(input)
-	var arr []int
+
+	arr := make([]int, 0, len(parts))
+
 	for _, part := range parts {
-		num, err := strconv.Atoi(part) // Преобразуем строку в целое число
+		num, err := strconv.Atoi(part)
 		if err != nil {
 			fmt.Println("Ошибка при конвертации числа:", err)
 			return
