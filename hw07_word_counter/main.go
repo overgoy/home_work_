@@ -25,7 +25,7 @@ func countWords(text string) map[string]int {
 }
 
 func main() {
-	fmt.Println("Введите тект:")
+	fmt.Println("Введите текст:")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan() // Читаем строку с ввода
 
