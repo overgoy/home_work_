@@ -1,1 +1,1 @@
-package hw06_testing
+package hw06testing
