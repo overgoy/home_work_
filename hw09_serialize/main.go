@@ -57,7 +57,6 @@ func (b *Book) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// пример
 func serializeProto(book *bookpb.Book) ([]byte, error) {
 	return proto.Marshal(book)
 }
