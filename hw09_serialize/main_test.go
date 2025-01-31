@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/overgoy/home_work_/hw09_serialize/bookpb" // Путь импорта для сгенерированного protobuf пакета
 	"testing"
+
+	"github.com/overgoy/home_work_/hw09_serialize/bookpb" // Путь импорта для сгенерированного protobuf пакета
 )
 
 func TestSerializeBooksToJSON(t *testing.T) {
