@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/overgoy/home_work_/hw09_serialize/bookpb"
+	"github.com/overgoy/home_work_/hw09_serialize/bookpb" // Путь импорта для сгенерированного protobuf пакета
 	"google.golang.org/protobuf/proto"
 )
 
@@ -94,27 +94,24 @@ func deserializeBooksFromProto(data []byte) ([]*bookpb.Book, error) {
 }
 
 func main() {
-	book := Book{
-		ID:     1,
-		Title:  "Go Programming",
-		Author: "John Doe",
-		Year:   2020,
-		Size:   500.0,
-		Rate:   4.5,
+	// Создаём слайс книг
+	books := []Book{
+		{ID: 1, Title: "Go Programming", Author: "John Doe", Year: 2020, Size: 500.0, Rate: 4.5},
+		{ID: 2, Title: "Learning Go", Author: "Jane Smith", Year: 2021, Size: 300.0, Rate: 4.2},
 	}
 
-	jsonData, err := book.MarshalJSON()
+	// Сериализация слайса книг в JSON
+	jsonData, err := serializeBooksToJSON(books)
 	if err != nil {
 		log.Fatalf("Ошибка сериализации в JSON: %v", err)
 	}
-	fmt.Println("Сериализация в JSON:", string(jsonData))
+	fmt.Println("Сериализация слайса книг в JSON:", string(jsonData))
 
-	var deserializedBook Book
-	err = deserializedBook.UnmarshalJSON(jsonData)
+	deserializedBooks, err := deserializeBooksFromJSON(jsonData)
 	if err != nil {
 		log.Fatalf("Ошибка десериализации из JSON: %v", err)
 	}
-	fmt.Println("Десериализация из JSON:", deserializedBook)
+	fmt.Println("Десериализация слайса книг из JSON:", deserializedBooks)
 
 	protoBook := &bookpb.Book{
 		Id:     1,
@@ -129,11 +126,28 @@ func main() {
 	if err != nil {
 		log.Fatalf("Ошибка сериализации в protobuf: %v", err)
 	}
-	fmt.Println("Сериализация в protobuf:", protoData)
+	fmt.Println("Сериализация книги в protobuf:", protoData)
 
 	deserializedProtoBook, err := deserializeProto(protoData)
 	if err != nil {
 		log.Fatalf("Ошибка десериализации из protobuf: %v", err)
 	}
-	fmt.Println("Десериализация из protobuf:", deserializedProtoBook)
+	fmt.Println("Десериализация книги из protobuf:", deserializedProtoBook)
+
+	protoBooks := []*bookpb.Book{
+		{Id: 1, Title: "Go Programming", Author: "John Doe", Year: 2020, Size: 500.0, Rate: 4.5},
+		{Id: 2, Title: "Learning Go", Author: "Jane Smith", Year: 2021, Size: 300.0, Rate: 4.2},
+	}
+
+	protoBooksData, err := serializeBooksToProto(protoBooks)
+	if err != nil {
+		log.Fatalf("Ошибка сериализации слайса книг в protobuf: %v", err)
+	}
+	fmt.Println("Сериализация слайса книг в protobuf:", protoBooksData)
+
+	deserializedProtoBooks, err := deserializeBooksFromProto(protoBooksData)
+	if err != nil {
+		log.Fatalf("Ошибка десериализации слайса книг из protobuf: %v", err)
+	}
+	fmt.Println("Десериализация слайса книг из protobuf:", deserializedProtoBooks)
 }
