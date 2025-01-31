@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/overgoy/home_work_/hw09_serialize/bookpb" // Путь импорта для сгенерированного protobuf пакета
+	"github.com/overgoy/home_work_/hw09_serialize/bookpb"
 	"google.golang.org/protobuf/proto"
 )
 
