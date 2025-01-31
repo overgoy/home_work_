@@ -94,13 +94,11 @@ func deserializeBooksFromProto(data []byte) ([]*bookpb.Book, error) {
 }
 
 func main() {
-	// Создаём слайс книг
 	books := []Book{
 		{ID: 1, Title: "Go Programming", Author: "John Doe", Year: 2020, Size: 500.0, Rate: 4.5},
 		{ID: 2, Title: "Learning Go", Author: "Jane Smith", Year: 2021, Size: 300.0, Rate: 4.2},
 	}
 
-	// Сериализация слайса книг в JSON
 	jsonData, err := serializeBooksToJSON(books)
 	if err != nil {
 		log.Fatalf("Ошибка сериализации в JSON: %v", err)
