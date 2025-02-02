@@ -1,8 +1,9 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/binary"
 	"fmt"
-	"math/rand"
 	"time"
 )
 
@@ -18,14 +19,22 @@ func sensorDataGenerator(dataChan chan<- float64) {
 			close(dataChan)
 			return
 		case <-ticker.C:
-			data := rand.Float64() * 100
+			data := generateSecureRandomFloat64()
 			dataChan <- data
 		}
 	}
 }
 
+func generateSecureRandomFloat64() float64 {
+	var b [8]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		return 0
+	}
+	return float64(binary.LittleEndian.Uint64(b[:])) / (1 << 64) * 100
+}
+
 func dataProcessor(dataChan <-chan float64, resultChan chan<- float64) {
-	var buffer []float64
+	buffer := make([]float64, 0, 10)
 
 	for value := range dataChan {
 		buffer = append(buffer, value)
@@ -33,7 +42,7 @@ func dataProcessor(dataChan <-chan float64, resultChan chan<- float64) {
 		if len(buffer) == 10 {
 			avg := calculateAverage(buffer)
 			resultChan <- avg
-			buffer = nil
+			buffer = buffer[:0]
 		}
 	}
 
