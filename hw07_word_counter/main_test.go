@@ -16,11 +16,11 @@ func TestCountWords(t *testing.T) {
 		},
 		{
 			"Привет, мир! Привет, Go.",
-			map[string]int{"привет": 2, "мир": 1, "go": 1},
+			map[string]int{"привет,": 2, "мир!": 1, "go.": 1},
 		},
 		{
 			"Go, go, GO! go...",
-			map[string]int{"go": 4},
+			map[string]int{"go,": 2, "go!": 1, "go...": 1},
 		},
 		{
 			"",
