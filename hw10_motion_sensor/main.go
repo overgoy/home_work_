@@ -7,10 +7,10 @@ import (
 )
 
 func sensorDataGenerator(dataChan chan<- float64) {
-	ticker := time.NewTicker(time.Second) // Генерация данных каждую секунду
+	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
-	timeout := time.After(60 * time.Second) // Ограничиваем время работы 1 минутой
+	timeout := time.After(60 * time.Second)
 
 	for {
 		select {
