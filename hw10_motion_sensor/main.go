@@ -1,24 +1,31 @@
 package main
 
 import (
-	"context"
 	"crypto/rand"
 	"encoding/binary"
 	"fmt"
+	"sync"
 	"time"
 )
 
-func sensorDataGenerator(ctx context.Context, dataChan chan<- float64) {
+func sensorDataGenerator(dataChan chan<- float64, wg *sync.WaitGroup) {
+	defer wg.Done()
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
+	timeout := time.After(60 * time.Second)
+
 	for {
 		select {
-		case <-ctx.Done():
+		case <-timeout:
 			close(dataChan)
 			return
 		case <-ticker.C:
-			dataChan <- generateSecureRandomFloat64()
+			data := generateSecureRandomFloat64()
+			select {
+			case dataChan <- data:
+			default:
+			}
 		}
 	}
 }
@@ -31,46 +38,38 @@ func generateSecureRandomFloat64() float64 {
 	return float64(binary.LittleEndian.Uint64(b[:])) / (1 << 64) * 100
 }
 
-func dataProcessor(dataChan <-chan float64, resultChan chan<- float64) {
-	buffer := make([]float64, 0, 10)
+func dataProcessor(dataChan <-chan float64, resultChan chan<- float64, wg *sync.WaitGroup) {
+	defer wg.Done()
+	var sum float64
+	count := 0
 
 	for value := range dataChan {
-		buffer = append(buffer, value)
+		sum += value
+		count++
 
-		if len(buffer) == 10 {
-			resultChan <- calculateAverage(buffer)
-			buffer = buffer[:0]
+		if count == 10 {
+			resultChan <- sum / 10
+			sum = 0
+			count = 0
 		}
-	}
-
-	if len(buffer) > 0 {
-		resultChan <- calculateAverage(buffer)
 	}
 
 	close(resultChan)
 }
 
-func calculateAverage(values []float64) float64 {
-	if len(values) == 0 {
-		return 0
-	}
-
-	sum := 0.0
-	for _, v := range values {
-		sum += v
-	}
-	return sum / float64(len(values))
-}
-
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
-	defer cancel()
+	dataChan := make(chan float64, 10)
+	resultChan := make(chan float64, 10)
+	var wg sync.WaitGroup
 
-	dataChan := make(chan float64)
-	resultChan := make(chan float64)
+	wg.Add(2)
+	go sensorDataGenerator(dataChan, &wg)
+	go dataProcessor(dataChan, resultChan, &wg)
 
-	go sensorDataGenerator(ctx, dataChan)
-	go dataProcessor(dataChan, resultChan)
+	go func() {
+		wg.Wait()
+		close(resultChan)
+	}()
 
 	for avg := range resultChan {
 		fmt.Printf("Среднее значение: %.2f\n", avg)
