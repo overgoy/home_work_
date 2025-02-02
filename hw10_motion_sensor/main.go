@@ -1,26 +1,24 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/binary"
 	"fmt"
 	"time"
 )
 
-func sensorDataGenerator(dataChan chan<- float64) {
+func sensorDataGenerator(ctx context.Context, dataChan chan<- float64) {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
-	timeout := time.After(60 * time.Second)
-
 	for {
 		select {
-		case <-timeout:
+		case <-ctx.Done():
 			close(dataChan)
 			return
 		case <-ticker.C:
-			data := generateSecureRandomFloat64()
-			dataChan <- data
+			dataChan <- generateSecureRandomFloat64()
 		}
 	}
 }
@@ -40,10 +38,13 @@ func dataProcessor(dataChan <-chan float64, resultChan chan<- float64) {
 		buffer = append(buffer, value)
 
 		if len(buffer) == 10 {
-			avg := calculateAverage(buffer)
-			resultChan <- avg
+			resultChan <- calculateAverage(buffer)
 			buffer = buffer[:0]
 		}
+	}
+
+	if len(buffer) > 0 {
+		resultChan <- calculateAverage(buffer)
 	}
 
 	close(resultChan)
@@ -62,10 +63,13 @@ func calculateAverage(values []float64) float64 {
 }
 
 func main() {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
 	dataChan := make(chan float64)
 	resultChan := make(chan float64)
 
-	go sensorDataGenerator(dataChan)
+	go sensorDataGenerator(ctx, dataChan)
 	go dataProcessor(dataChan, resultChan)
 
 	for avg := range resultChan {
