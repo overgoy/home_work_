@@ -20,45 +20,40 @@ func sensorDataGenerator(dataChan chan<- float64) {
 			return
 		case <-ticker.C:
 			data := generateSecureRandomFloat64()
-			dataChan <- data
+			select {
+			case dataChan <- data:
+			default:
+			}
 		}
 	}
 }
 
 func generateSecureRandomFloat64() float64 {
 	var b [8]byte
-	if _, err := rand.Read(b[:]); err != nil {
+	_, err := rand.Read(b[:]) // Использование crypto/rand для генерации случайных байт
+	if err != nil {
 		return 0
 	}
 	return float64(binary.LittleEndian.Uint64(b[:])) / (1 << 64) * 100
 }
 
 func dataProcessor(dataChan <-chan float64, resultChan chan<- float64) {
-	buffer := make([]float64, 0, 10)
+	var sum float64
+	count := 0
 
 	for value := range dataChan {
-		buffer = append(buffer, value)
+		sum += value
+		count++
 
-		if len(buffer) == 10 {
-			avg := calculateAverage(buffer)
+		if count == 10 {
+			avg := sum / 10
 			resultChan <- avg
-			buffer = buffer[:0]
+			sum = 0
+			count = 0
 		}
 	}
 
 	close(resultChan)
-}
-
-func calculateAverage(values []float64) float64 {
-	if len(values) == 0 {
-		return 0
-	}
-
-	sum := 0.0
-	for _, v := range values {
-		sum += v
-	}
-	return sum / float64(len(values))
 }
 
 func main() {
