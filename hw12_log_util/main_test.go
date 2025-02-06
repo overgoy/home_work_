@@ -49,7 +49,7 @@ func TestWriteStats(t *testing.T) {
 		t.Fatalf("Failed to read temp output file: %v", err)
 	}
 
-	expectedContent := "INFO: 2\nERROR: 1\n"
+	expectedContent := "ERROR: 2\nINFO: 1\n"
 	if string(content) != expectedContent {
 		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedContent, content)
 	}
