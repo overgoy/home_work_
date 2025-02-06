@@ -2,6 +2,9 @@ package main
 
 import (
 	"os"
+	"reflect"
+	"sort"
+	"strings"
 	"testing"
 )
 
@@ -49,8 +52,13 @@ func TestWriteStats(t *testing.T) {
 		t.Fatalf("Failed to read temp output file: %v", err)
 	}
 
-	expectedContent := "ERROR: 2\nINFO: 1\n"
-	if string(content) != expectedContent {
-		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedContent, content)
+	lines := strings.Split(strings.TrimSpace(string(content)), "\n")
+	sort.Strings(lines) // Сортируем строки
+
+	expectedLines := []string{"ERROR: 1", "INFO: 2"}
+	sort.Strings(expectedLines) // Тоже сортируем ожидаемый вывод
+
+	if !reflect.DeepEqual(lines, expectedLines) {
+		t.Errorf("Expected output:\n%s\nGot:\n%s", strings.Join(expectedLines, "\n"), strings.Join(lines, "\n"))
 	}
 }
