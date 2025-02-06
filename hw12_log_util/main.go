@@ -76,8 +76,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := writeStats(stats, *outputPath); err != nil {
-		fmt.Printf("Error writing stats: %v\n", err)
+	if outputErr := writeStats(stats, *outputPath); outputErr != nil {
+		fmt.Printf("Error writing stats: %v\n", outputErr)
 		os.Exit(1)
 	}
 }
