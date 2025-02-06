@@ -37,7 +37,6 @@ func analyzeLogs(filePath, level string) (map[string]int, error) {
 	return stats, nil
 }
 
-// writeStats записывает статистику в файл или выводит в консоль
 func writeStats(stats map[string]int, outputPath string) error {
 	var output *os.File
 	var err error
