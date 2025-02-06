@@ -1,0 +1,4 @@
+[INFO] System started
+[ERROR] Failed to connect
+[DEBUG] Debugging info
+[INFO] User logged in
