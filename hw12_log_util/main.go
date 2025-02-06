@@ -10,9 +10,9 @@ import (
 )
 
 func analyzeLogs(filePath, level string) (map[string]int, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
+	file, newErr := os.Open(filePath)
+	if newErr != nil {
+		return nil, newErr
 	}
 	defer file.Close()
 
