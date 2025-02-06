@@ -70,9 +70,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	stats, analyzerr := analyzeLogs(*filePath, *logLevel)
-	if analyzerr != nil {
-		fmt.Printf("Error analyzing logs: %v\n", analyzerr)
+	stats, analyzeErr := analyzeLogs(*filePath, *logLevel)
+	if analyzeErr != nil {
+		fmt.Printf("Error analyzing logs: %v\n", analyzeErr)
 		os.Exit(1)
 	}
 
