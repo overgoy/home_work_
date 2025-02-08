@@ -6,9 +6,15 @@ import (
 )
 
 func main() {
-	// Проверка аргументов командной строки
+	// Проверка аргументов и запуск клиента или сервера
 	if len(os.Args) < 3 {
-		log.Fatalf("Использование: %s <адрес> <порт>", os.Args[0])
+		log.Println("Использование: <server_url> <method> [data]")
+		return
 	}
-	startServer()
+
+	url := os.Args[1]
+	method := os.Args[2]
+
+	// Запуск клиента (для POST/GET запросов)
+	RunClient(url, method)
 }
