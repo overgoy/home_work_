@@ -20,6 +20,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	var response Response
 
+	// Обработка POST-запроса
 	if r.Method == http.MethodPost {
 		body, readErr := io.ReadAll(r.Body)
 		if readErr != nil {
@@ -28,25 +29,30 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 		response = Response{Message: fmt.Sprintf("Получен POST-запрос с телом: %s", string(body))}
 	} else {
+		// Обработка GET-запроса
 		response = Response{Message: fmt.Sprintf("Получен GET-запрос для %s", r.URL.Path)}
 	}
 
+	// Отправляем JSON-ответ
 	encodeErr := json.NewEncoder(w).Encode(response)
 	if encodeErr != nil {
 		http.Error(w, "Ошибка при отправке ответа", http.StatusInternalServerError)
 	}
 }
 
-func main() {
+func mainServer() {
+	// Проверка аргументов командной строки
 	if len(os.Args) < 3 {
 		log.Fatalf("Использование: %s <адрес> <порт>", os.Args[0])
 	}
 	addr := os.Args[1]
 	port := os.Args[2]
 
+	// Регистрируем обработчик
 	http.HandleFunc("/", handler)
 	log.Printf("Запуск сервера на %s:%s", addr, port)
 
+	// Настроим сервер с тайм-аутами
 	srv := &http.Server{
 		Addr:         addr + ":" + port,
 		Handler:      nil,
@@ -55,6 +61,7 @@ func main() {
 		IdleTimeout:  10 * time.Second,
 	}
 
+	// Запуск сервера
 	log.Printf("Сервер запущен на %s:%s", addr, port)
 	serverErr := srv.ListenAndServe()
 	if serverErr != nil {

@@ -11,11 +11,13 @@ import (
 )
 
 func main() {
+	// Проверяем количество аргументов
 	if len(os.Args) < 3 {
 		log.Println("Использование: <server_url> <method> [data]")
 		return
 	}
 
+	// Получаем URL и метод
 	url := os.Args[1]
 	method := os.Args[2]
 
@@ -30,7 +32,7 @@ func main() {
 
 	// Переменная для запроса
 	var req *http.Request
-	var reqErr error
+	var reqCreateErr error
 
 	// Обработка метода POST
 	if method == "POST" {
@@ -38,9 +40,9 @@ func main() {
 			log.Println("POST метод требует передачи данных")
 			return
 		}
-		req, reqErr = http.NewRequestWithContext(ctx, method, url, nil)
-		if reqErr != nil {
-			log.Printf("Ошибка при создании POST-запроса: %v", reqErr)
+		req, reqCreateErr = http.NewRequestWithContext(ctx, method, url, nil)
+		if reqCreateErr != nil {
+			log.Printf("Ошибка при создании POST-запроса: %v", reqCreateErr)
 			return
 		}
 		req.Header.Set("Content-Type", "application/json")
@@ -49,9 +51,9 @@ func main() {
 		req.Body = io.NopCloser(strings.NewReader(data))
 	} else {
 		// Обработка метода GET
-		req, reqErr = http.NewRequestWithContext(ctx, "GET", url, nil)
-		if reqErr != nil {
-			log.Printf("Ошибка при создании GET-запроса: %v", reqErr)
+		req, reqCreateErr = http.NewRequestWithContext(ctx, "GET", url, nil)
+		if reqCreateErr != nil {
+			log.Printf("Ошибка при создании GET-запроса: %v", reqCreateErr)
 			return
 		}
 	}

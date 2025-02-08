@@ -13,8 +13,8 @@ type ResponseData struct {
 }
 
 func TestHandlerGET(t *testing.T) {
-	req, err := http.NewRequest("GET", "/", nil)
-	if err != nil {
+	req, reqErr := http.NewRequest("GET", "/", nil)
+	if reqErr != nil {
 		t.Fatal("Ошибка создания GET-запроса")
 	}
 
@@ -27,15 +27,15 @@ func TestHandlerGET(t *testing.T) {
 	}
 
 	var response ResponseData
-	if err := json.NewDecoder(rr.Body).Decode(&response); err != nil {
+	if decodeErr := json.NewDecoder(rr.Body).Decode(&response); decodeErr != nil {
 		t.Fatal("Ошибка декодирования JSON-ответа")
 	}
 }
 
 func TestHandlerPOST(t *testing.T) {
 	body := bytes.NewBufferString("тестовые данные")
-	req, err := http.NewRequest("POST", "/", body)
-	if err != nil {
+	req, reqErr := http.NewRequest("POST", "/", body)
+	if reqErr != nil {
 		t.Fatal("Ошибка создания POST-запроса")
 	}
 
@@ -50,7 +50,7 @@ func TestHandlerPOST(t *testing.T) {
 	}
 
 	var response ResponseData
-	if err := json.NewDecoder(rr.Body).Decode(&response); err != nil {
+	if decodeErr := json.NewDecoder(rr.Body).Decode(&response); decodeErr != nil {
 		t.Fatal("Ошибка декодирования JSON-ответа")
 	}
 }
