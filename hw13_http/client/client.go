@@ -1,51 +1,77 @@
 package main
 
 import (
-	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func main() {
 	if len(os.Args) < 3 {
-		log.Fatalf("Использование: %s <server_url> <method> [data]", os.Args[0])
+		log.Println("Использование: <server_url> <method> [data]")
+		return
 	}
 
 	url := os.Args[1]
 	method := os.Args[2]
 
+	// Переменная для данных в случае метода POST
+	var data string
+	if len(os.Args) >= 4 {
+		data = os.Args[3]
+	}
+
+	// Создаем контекст для запроса
+	ctx := context.Background()
+
+	// Переменная для запроса
 	var req *http.Request
-	var err error
+	var reqErr error
 
+	// Обработка метода POST
 	if method == "POST" {
-		if len(os.Args) < 4 {
-			log.Fatal("POST метод требует передачи данных")
+		if data == "" {
+			log.Println("POST метод требует передачи данных")
+			return
 		}
-		data := os.Args[3]
-		req, err = http.NewRequest("POST", url, bytes.NewBuffer([]byte(data)))
+		req, reqErr = http.NewRequestWithContext(ctx, method, url, nil)
+		if reqErr != nil {
+			log.Printf("Ошибка при создании POST-запроса: %v", reqErr)
+			return
+		}
 		req.Header.Set("Content-Type", "application/json")
+
+		// Устанавливаем тело запроса с данными
+		req.Body = io.NopCloser(strings.NewReader(data))
 	} else {
-		req, err = http.NewRequest("GET", url, nil)
+		// Обработка метода GET
+		req, reqErr = http.NewRequestWithContext(ctx, "GET", url, nil)
+		if reqErr != nil {
+			log.Printf("Ошибка при создании GET-запроса: %v", reqErr)
+			return
+		}
 	}
 
-	if err != nil {
-		log.Fatalf("Ошибка при создании запроса: %v", err)
-	}
-
+	// Отправка запроса
 	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatalf("Ошибка при выполнении запроса: %v", err)
+	resp, respErr := client.Do(req)
+	if respErr != nil {
+		log.Printf("Ошибка при выполнении запроса: %v", respErr)
+		return
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() // defer работает даже с return, так как он будет выполнен до выхода из main()
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatalf("Ошибка при чтении ответа: %v", err)
+	// Чтение ответа
+	body, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		log.Printf("Ошибка при чтении ответа: %v", readErr)
+		return
 	}
 
+	// Выводим тело ответа
 	fmt.Println(string(body))
 }
