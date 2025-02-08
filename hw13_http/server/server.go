@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 type Response struct {
@@ -20,8 +21,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	var response Response
 
 	if r.Method == http.MethodPost {
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
+		body, readErr := io.ReadAll(r.Body)
+		if readErr != nil {
 			http.Error(w, "Не удалось прочитать тело запроса", http.StatusInternalServerError)
 			return
 		}
@@ -30,7 +31,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		response = Response{Message: fmt.Sprintf("Получен GET-запрос для %s", r.URL.Path)}
 	}
 
-	json.NewEncoder(w).Encode(response)
+	encodeErr := json.NewEncoder(w).Encode(response)
+	if encodeErr != nil {
+		http.Error(w, "Ошибка при отправке ответа", http.StatusInternalServerError)
+	}
 }
 
 func main() {
@@ -42,5 +46,18 @@ func main() {
 
 	http.HandleFunc("/", handler)
 	log.Printf("Запуск сервера на %s:%s", addr, port)
-	log.Fatal(http.ListenAndServe(addr+":"+port, nil))
+
+	srv := &http.Server{
+		Addr:         addr + ":" + port,
+		Handler:      nil,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  10 * time.Second,
+	}
+
+	log.Printf("Сервер запущен на %s:%s", addr, port)
+	serverErr := srv.ListenAndServe()
+	if serverErr != nil {
+		log.Fatalf("Ошибка запуска сервера: %v", serverErr)
+	}
 }
