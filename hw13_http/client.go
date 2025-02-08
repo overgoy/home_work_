@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	// Проверяем количество аргументов
+	// Проверка аргументов командной строки
 	if len(os.Args) < 3 {
 		log.Println("Использование: <server_url> <method> [data]")
 		return
@@ -40,6 +40,7 @@ func main() {
 			log.Println("POST метод требует передачи данных")
 			return
 		}
+		// Создаем запрос с контекстом
 		req, reqCreateErr = http.NewRequestWithContext(ctx, method, url, nil)
 		if reqCreateErr != nil {
 			log.Printf("Ошибка при создании POST-запроса: %v", reqCreateErr)
