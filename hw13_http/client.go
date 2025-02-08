@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+// RunClient — функция для выполнения HTTP-запросов.
 func RunClient(url string, method string) {
 	// Переменная для данных в случае метода POST
 	var data string
