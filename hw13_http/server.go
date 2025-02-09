@@ -20,8 +20,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	var response Response
 
 	if r.Method == http.MethodPost {
-		body, readErr := io.ReadAll(r.Body)
-		if readErr != nil {
+		body, rErr := io.ReadAll(r.Body)
+		if rErr != nil {
 			http.Error(w, "Не удалось прочитать тело запроса", http.StatusInternalServerError)
 			return
 		}

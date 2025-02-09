@@ -13,10 +13,9 @@ type ResponseData struct {
 }
 
 func TestHandlerGET(t *testing.T) {
-	// Создаем GET-запрос
-	req, err := http.NewRequest("GET", "/", nil)
-	if err != nil {
-		t.Fatal("Ошибка создания GET-запроса:", err)
+	req, reqErr := http.NewRequest("GET", "/", nil)
+	if reqErr != nil {
+		t.Fatal("Ошибка создания GET-запроса:", reqErr)
 	}
 
 	rr := httptest.NewRecorder()
@@ -28,8 +27,9 @@ func TestHandlerGET(t *testing.T) {
 	}
 
 	var response ResponseData
-	if err := json.NewDecoder(rr.Body).Decode(&response); err != nil {
-		t.Fatal("Ошибка декодирования JSON-ответа:", err)
+	decodeErr := json.NewDecoder(rr.Body).Decode(&response)
+	if decodeErr != nil {
+		t.Fatal("Ошибка декодирования JSON-ответа:", decodeErr)
 	}
 
 	expectedMessage := "Получен GET-запрос для /"
@@ -41,24 +41,25 @@ func TestHandlerGET(t *testing.T) {
 func TestHandlerPOST(t *testing.T) {
 	body := bytes.NewBufferString("тестовые данные")
 
-	req, err := http.NewRequest("POST", "/", body)
-	if err != nil {
-		t.Fatal("Ошибка создания POST-запроса:", err)
+	req, reqErr := http.NewRequest("POST", "/", body)
+	if reqErr != nil {
+		t.Fatal("Ошибка создания POST-запроса:", reqErr)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handler) // передаем обработчик
-	handler.ServeHTTP(rr, req)           // обрабатываем запрос
+	handler := http.HandlerFunc(handler)
+	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("Неверный код состояния: получили %v, ожидался %v", status, http.StatusOK)
 	}
 
 	var response ResponseData
-	if err := json.NewDecoder(rr.Body).Decode(&response); err != nil {
-		t.Fatal("Ошибка декодирования JSON-ответа:", err)
+	decodeErr := json.NewDecoder(rr.Body).Decode(&response)
+	if decodeErr != nil {
+		t.Fatal("Ошибка декодирования JSON-ответа:", decodeErr)
 	}
 
 	expectedMessage := "Получен POST-запрос с телом: тестовые данные"
