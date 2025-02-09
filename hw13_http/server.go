@@ -19,15 +19,19 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	var response Response
 
-	if r.Method == http.MethodPost {
+	switch r.Method {
+	case http.MethodGet:
+		response = Response{Message: fmt.Sprintf("Получен GET-запрос для %s", r.URL.Path)}
+	case http.MethodPost:
 		body, rErr := io.ReadAll(r.Body)
 		if rErr != nil {
 			http.Error(w, "Не удалось прочитать тело запроса", http.StatusInternalServerError)
 			return
 		}
 		response = Response{Message: fmt.Sprintf("Получен POST-запрос с телом: %s", string(body))}
-	} else {
-		response = Response{Message: fmt.Sprintf("Получен GET-запрос для %s", r.URL.Path)}
+	default:
+		http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
+		return
 	}
 
 	encodeErr := json.NewEncoder(w).Encode(response)
