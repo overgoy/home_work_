@@ -6,11 +6,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 )
 
-func RunClient(url string, method string) {
+func RunClient(targetURL string, method string) {
 	var requestData string
 	if len(os.Args) >= 4 {
 		requestData = os.Args[3]
@@ -18,37 +19,51 @@ func RunClient(url string, method string) {
 
 	client := &http.Client{Timeout: 10 * time.Second}
 
-	response, requestError := executeRequest(client, url, method, requestData)
-	if requestError != nil {
-		log.Printf("Ошибка при выполнении запроса: %v", requestError)
+	response, requestExecutionError := sendRequest(client, targetURL, method, requestData)
+	if requestExecutionError != nil {
+		log.Printf("Ошибка при выполнении запроса: %v", requestExecutionError)
 		return
 	}
 	defer response.Body.Close()
 
-	responseBody, readError := io.ReadAll(response.Body)
-	if readError != nil {
-		log.Printf("Ошибка при чтении ответа: %v", readError)
+	responseBody, responseReadError := io.ReadAll(response.Body)
+	if responseReadError != nil {
+		log.Printf("Ошибка при чтении ответа: %v", responseReadError)
 		return
 	}
 
 	fmt.Println(string(responseBody))
 }
 
-func executeRequest(client *http.Client, url, method, requestData string) (*http.Response, error) {
-	var requestBody *bytes.Reader
+func sendRequest(client *http.Client, targetURL, method, requestData string) (*http.Response, error) {
+	var requestBody *bytes.Buffer
 	if method == "POST" {
 		if requestData == "" {
 			return nil, fmt.Errorf("POST метод требует передачи данных")
 		}
-		requestBody = bytes.NewReader([]byte(requestData))
+		requestBody = bytes.NewBuffer([]byte(requestData))
 	} else {
-		requestBody = bytes.NewReader(nil)
+		requestBody = bytes.NewBuffer(nil)
 	}
 
-	requestObject, requestCreationError := client.Post(url, "application/json", requestBody)
-	if requestCreationError != nil {
-		return nil, requestCreationError
+	parsedURL, parseErr := url.Parse(targetURL)
+	if parseErr != nil {
+		return nil, fmt.Errorf("Ошибка парсинга URL: %w", parseErr)
 	}
 
-	return requestObject, nil
+	requestObject := &http.Request{
+		Method: method,
+		URL:    parsedURL,
+		Body:   io.NopCloser(requestBody),
+		Header: map[string][]string{
+			"Content-Type": {"application/json"},
+		},
+	}
+
+	response, executionError := client.Do(requestObject)
+	if executionError != nil {
+		return nil, executionError
+	}
+
+	return response, nil
 }
