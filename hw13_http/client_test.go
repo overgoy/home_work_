@@ -11,14 +11,16 @@ import (
 
 func mockServer(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	if r.Method == "GET" {
+
+	switch r.Method {
+	case "GET":
 		w.WriteHeader(http.StatusOK)
 		io.WriteString(w, `{"message": "GET-запрос выполнен"}`)
-	} else if r.Method == "POST" {
+	case "POST":
 		body, _ := io.ReadAll(r.Body)
 		w.WriteHeader(http.StatusOK)
 		io.WriteString(w, fmt.Sprintf(`{"message": "POST-запрос выполнен с данными: %s"}`, string(body)))
-	} else {
+	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		io.WriteString(w, `{"message": "Метод не поддерживается"}`)
 	}
