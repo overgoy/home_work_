@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"log"
@@ -12,24 +11,22 @@ import (
 )
 
 func RunClient(url string, method string) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	var data string
 	if len(os.Args) >= 4 {
 		data = os.Args[3]
 	}
 
-	req, err := createRequest(ctx, url, method, data)
-	if err != nil {
-		log.Printf("Ошибка при создании запроса: %v", err)
+	req, reqErr := createRequest(url, method, data)
+	if reqErr != nil {
+		log.Printf("Ошибка при создании запроса: %v", reqErr)
 		return
 	}
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Printf("Ошибка при выполнении запроса: %v", err)
+	client := &http.Client{Timeout: 10 * time.Second}
+
+	resp, respErr := client.Do(req)
+	if respErr != nil {
+		log.Printf("Ошибка при выполнении запроса: %v", respErr)
 		return
 	}
 	defer resp.Body.Close()
@@ -43,24 +40,24 @@ func RunClient(url string, method string) {
 	fmt.Println(string(body))
 }
 
-func createRequest(ctx context.Context, url, method, data string) (*http.Request, error) {
-	var req *http.Request
-	var err error
-
+func createRequest(url, method, data string) (*http.Request, error) {
 	if method == "POST" {
 		if data == "" {
 			return nil, fmt.Errorf("POST метод требует передачи данных")
 		}
-		req, err = http.NewRequest("POST", url, strings.NewReader(data))
-	} else {
-		req, err = http.NewRequest("GET", url, nil)
+		req, err := http.NewRequest("POST", url, strings.NewReader(data))
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("Content-Type", "application/json")
+		return req, nil
 	}
 
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-
-	return req.WithContext(ctx), nil
+	return req, nil
 }
