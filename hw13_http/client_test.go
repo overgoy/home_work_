@@ -86,14 +86,14 @@ func TestSendRequest_NoDataForPOST(t *testing.T) {
 	}
 }
 
-func TestRunClientGETSuccess(t *testing.T) {
+func TestRunClientGETSuccess(_ *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(mockServer))
 	defer server.Close()
 
 	RunClient(server.URL, "GET")
 }
 
-func TestRunClientInvalidMethod(t *testing.T) {
+func TestRunClientInvalidMethod(_ *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(mockServer))
 	defer server.Close()
 
