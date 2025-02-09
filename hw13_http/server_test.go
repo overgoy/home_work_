@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,9 +14,11 @@ type ResponseData struct {
 }
 
 func TestHandlerGET(t *testing.T) {
-	req, reqErr := http.NewRequest("GET", "/", nil)
-	if reqErr != nil {
-		t.Fatal("Ошибка создания GET-запроса:", reqErr)
+	req := &http.Request{
+		Method: "GET",
+		URL:    nil,
+		Body:   nil,
+		Header: map[string][]string{},
 	}
 
 	rr := httptest.NewRecorder()
@@ -41,12 +44,14 @@ func TestHandlerGET(t *testing.T) {
 func TestHandlerPOST(t *testing.T) {
 	body := bytes.NewBufferString("тестовые данные")
 
-	req, reqErr := http.NewRequest("POST", "/", body)
-	if reqErr != nil {
-		t.Fatal("Ошибка создания POST-запроса:", reqErr)
+	req := &http.Request{
+		Method: "POST",
+		URL:    nil,
+		Body:   io.NopCloser(body),
+		Header: map[string][]string{
+			"Content-Type": {"application/json"},
+		},
 	}
-
-	req.Header.Set("Content-Type", "application/json")
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(handler)
