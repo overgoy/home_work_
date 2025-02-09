@@ -19,16 +19,16 @@ func RunClient(targetURL string, method string) {
 
 	client := &http.Client{Timeout: 10 * time.Second}
 
-	response, requestExecutionError := sendRequest(client, targetURL, method, requestData)
-	if requestExecutionError != nil {
-		log.Printf("Ошибка при выполнении запроса: %v", requestExecutionError)
+	response, reqErr := sendRequest(client, targetURL, method, requestData)
+	if reqErr != nil {
+		log.Printf("ошибка при выполнении запроса: %v", reqErr)
 		return
 	}
 	defer response.Body.Close()
 
-	responseBody, responseReadError := io.ReadAll(response.Body)
-	if responseReadError != nil {
-		log.Printf("Ошибка при чтении ответа: %v", responseReadError)
+	responseBody, readErr := io.ReadAll(response.Body)
+	if readErr != nil {
+		log.Printf("ошибка при чтении ответа: %v", readErr)
 		return
 	}
 
@@ -39,16 +39,16 @@ func sendRequest(client *http.Client, targetURL, method, requestData string) (*h
 	var requestBody *bytes.Buffer
 	if method == "POST" {
 		if requestData == "" {
-			return nil, fmt.Errorf("POST метод требует передачи данных")
+			return nil, fmt.Errorf("post метод требует передачи данных")
 		}
 		requestBody = bytes.NewBuffer([]byte(requestData))
 	} else {
 		requestBody = bytes.NewBuffer(nil)
 	}
 
-	parsedURL, parseErr := url.Parse(targetURL)
-	if parseErr != nil {
-		return nil, fmt.Errorf("Ошибка парсинга URL: %w", parseErr)
+	parsedURL, urlErr := url.Parse(targetURL)
+	if urlErr != nil {
+		return nil, fmt.Errorf("ошибка парсинга url: %w", urlErr)
 	}
 
 	requestObject := &http.Request{
@@ -60,9 +60,9 @@ func sendRequest(client *http.Client, targetURL, method, requestData string) (*h
 		},
 	}
 
-	response, executionError := client.Do(requestObject)
-	if executionError != nil {
-		return nil, executionError
+	response, httpErr := client.Do(requestObject)
+	if httpErr != nil {
+		return nil, fmt.Errorf("ошибка выполнения запроса: %w", httpErr)
 	}
 
 	return response, nil
