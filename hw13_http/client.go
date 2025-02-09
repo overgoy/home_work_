@@ -19,9 +19,9 @@ func RunClient(targetURL string, method string) {
 
 	client := &http.Client{Timeout: 10 * time.Second}
 
-	response, reqErr := sendRequest(client, targetURL, method, requestData)
-	if reqErr != nil {
-		log.Printf("ошибка при выполнении запроса: %v", reqErr)
+	response, requestErr := sendRequest(client, targetURL, method, requestData)
+	if requestErr != nil {
+		log.Printf("ошибка при выполнении запроса: %v", requestErr)
 		return
 	}
 	defer response.Body.Close()
@@ -46,9 +46,9 @@ func sendRequest(client *http.Client, targetURL, method, requestData string) (*h
 		requestBody = bytes.NewBuffer(nil)
 	}
 
-	parsedURL, urlErr := url.Parse(targetURL)
-	if urlErr != nil {
-		return nil, fmt.Errorf("ошибка парсинга url: %w", urlErr)
+	parsedURL, parseErr := url.Parse(targetURL)
+	if parseErr != nil {
+		return nil, fmt.Errorf("ошибка парсинга url: %w", parseErr)
 	}
 
 	requestObject := &http.Request{
@@ -60,9 +60,9 @@ func sendRequest(client *http.Client, targetURL, method, requestData string) (*h
 		},
 	}
 
-	response, httpErr := client.Do(requestObject)
-	if httpErr != nil {
-		return nil, fmt.Errorf("ошибка выполнения запроса: %w", httpErr)
+	response, responseErr := client.Do(requestObject)
+	if responseErr != nil {
+		return nil, fmt.Errorf("ошибка выполнения запроса: %w", responseErr)
 	}
 
 	return response, nil
