@@ -1,63 +1,54 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 )
 
 func RunClient(url string, method string) {
-	var data string
+	var requestData string
 	if len(os.Args) >= 4 {
-		data = os.Args[3]
-	}
-
-	req, reqErr := createRequest(url, method, data)
-	if reqErr != nil {
-		log.Printf("Ошибка при создании запроса: %v", reqErr)
-		return
+		requestData = os.Args[3]
 	}
 
 	client := &http.Client{Timeout: 10 * time.Second}
 
-	resp, respErr := client.Do(req)
-	if respErr != nil {
-		log.Printf("Ошибка при выполнении запроса: %v", respErr)
+	response, requestError := executeRequest(client, url, method, requestData)
+	if requestError != nil {
+		log.Printf("Ошибка при выполнении запроса: %v", requestError)
 		return
 	}
-	defer resp.Body.Close()
+	defer response.Body.Close()
 
-	body, readErr := io.ReadAll(resp.Body)
-	if readErr != nil {
-		log.Printf("Ошибка при чтении ответа: %v", readErr)
+	responseBody, readError := io.ReadAll(response.Body)
+	if readError != nil {
+		log.Printf("Ошибка при чтении ответа: %v", readError)
 		return
 	}
 
-	fmt.Println(string(body))
+	fmt.Println(string(responseBody))
 }
 
-func createRequest(url, method, data string) (*http.Request, error) {
+func executeRequest(client *http.Client, url, method, requestData string) (*http.Response, error) {
+	var requestBody *bytes.Reader
 	if method == "POST" {
-		if data == "" {
+		if requestData == "" {
 			return nil, fmt.Errorf("POST метод требует передачи данных")
 		}
-		req, err := http.NewRequest("POST", url, strings.NewReader(data))
-		if err != nil {
-			return nil, err
-		}
-		req.Header.Set("Content-Type", "application/json")
-		return req, nil
+		requestBody = bytes.NewReader([]byte(requestData))
+	} else {
+		requestBody = bytes.NewReader(nil)
 	}
 
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
+	requestObject, requestCreationError := client.Post(url, "application/json", requestBody)
+	if requestCreationError != nil {
+		return nil, requestCreationError
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	return req, nil
+	return requestObject, nil
 }
