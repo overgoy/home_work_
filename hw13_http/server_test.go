@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -16,7 +17,7 @@ type ResponseData struct {
 func TestHandlerGET(t *testing.T) {
 	req := &http.Request{
 		Method: "GET",
-		URL:    nil,
+		URL:    &url.URL{Path: "/"},
 		Body:   nil,
 		Header: map[string][]string{},
 	}
@@ -46,7 +47,7 @@ func TestHandlerPOST(t *testing.T) {
 
 	req := &http.Request{
 		Method: "POST",
-		URL:    nil,
+		URL:    &url.URL{Path: "/"},
 		Body:   io.NopCloser(body),
 		Header: map[string][]string{
 			"Content-Type": {"application/json"},
