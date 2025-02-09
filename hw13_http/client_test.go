@@ -26,56 +26,74 @@ func mockServer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func TestRunClientGET(_ *testing.T) {
+func TestRunClientGET(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(mockServer))
 	defer server.Close()
 
 	client := &http.Client{}
 	resp, err := sendRequest(client, server.URL, "GET", "")
 	if err != nil {
-		panic(fmt.Sprintf("Ошибка при выполнении GET-запроса: %v", err))
+		t.Fatalf("Ошибка при выполнении GET-запроса: %v", err)
 	}
 	defer resp.Body.Close() // Закрываем тело ответа
+
+	_, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		t.Fatalf("Ошибка чтения тела ответа: %v", readErr)
+	}
 }
 
-func TestRunClientPOST(_ *testing.T) {
+func TestRunClientPOST(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(mockServer))
 	defer server.Close()
 
 	client := &http.Client{}
 	resp, err := sendRequest(client, server.URL, "POST", `{"key": "value"}`)
 	if err != nil {
-		panic(fmt.Sprintf("Ошибка при выполнении POST-запроса: %v", err))
+		t.Fatalf("Ошибка при выполнении POST-запроса: %v", err)
 	}
-	defer resp.Body.Close() // Закрываем тело ответа
+	defer resp.Body.Close()
+
+	_, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		t.Fatalf("Ошибка чтения тела ответа: %v", readErr)
+	}
 }
 
-func TestSendRequest_InvalidURL(_ *testing.T) {
+func TestSendRequest_InvalidURL(t *testing.T) {
 	client := &http.Client{}
-	_, err := sendRequest(client, "htp://invalid-url", "GET", "")
+	resp, err := sendRequest(client, "htp://invalid-url", "GET", "")
+
+	if resp != nil {
+		resp.Body.Close()
+	}
 
 	if err == nil {
-		panic("Ожидалась ошибка парсинга URL, но её не произошло")
+		t.Fatal("Ожидалась ошибка парсинга URL, но её не произошло")
 	}
 }
 
-func TestSendRequest_NoDataForPOST(_ *testing.T) {
+func TestSendRequest_NoDataForPOST(t *testing.T) {
 	client := &http.Client{}
-	_, err := sendRequest(client, "http://localhost", "POST", "")
+	resp, err := sendRequest(client, "http://localhost", "POST", "")
+
+	if resp != nil {
+		resp.Body.Close()
+	}
 
 	if err == nil {
-		panic("Ожидалась ошибка: POST метод требует передачи данных, но ошибка не произошла")
+		t.Fatal("Ожидалась ошибка: POST метод требует передачи данных, но ошибка не произошла")
 	}
 }
 
-func TestRunClientGETSuccess(_ *testing.T) {
+func TestRunClientGETSuccess(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(mockServer))
 	defer server.Close()
 
 	RunClient(server.URL, "GET")
 }
 
-func TestRunClientInvalidMethod(_ *testing.T) {
+func TestRunClientInvalidMethod(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(mockServer))
 	defer server.Close()
 
