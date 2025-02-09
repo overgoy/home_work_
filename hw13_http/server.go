@@ -9,12 +9,10 @@ import (
 	"time"
 )
 
-// Response — структура ответа сервера.
 type Response struct {
 	Message string `json:"message"`
 }
 
-// handler — обработчик HTTP-запросов.
 func handler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Получен %s запрос для %s", r.Method, r.URL.Path)
 	w.Header().Set("Content-Type", "application/json")
@@ -38,7 +36,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// startServer — функция для запуска HTTP-сервера.
 func startServer(addr string, port string) {
 	http.HandleFunc("/", handler)
 	log.Printf("Запуск сервера на %s:%s", addr, port)
