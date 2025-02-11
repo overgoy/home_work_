@@ -42,22 +42,29 @@ func main() {
 }
 
 func createTables(db *sql.DB) {
-	query := `
-	CREATE TABLE IF NOT EXISTS Users (
-		id SERIAL PRIMARY KEY,
-		name TEXT NOT NULL,
-		email TEXT UNIQUE NOT NULL,
-		password TEXT NOT NULL
-	);
-	CREATE TABLE IF NOT EXISTS Products (
-		id SERIAL PRIMARY KEY,
-		name TEXT NOT NULL,
-		price NUMERIC(10,2) NOT NULL
-	);`
-	_, err := db.Exec(query)
+	_, err := db.Exec(`
+		CREATE TABLE IF NOT EXISTS Users (
+			id SERIAL PRIMARY KEY,
+			name TEXT NOT NULL,
+			email TEXT UNIQUE NOT NULL,
+			password TEXT NOT NULL
+		)
+	`)
 	if err != nil {
-		log.Fatal("Ошибка создания таблиц:", err)
+		log.Fatal("Ошибка создания таблицы Users:", err)
 	}
+
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS Products (
+			id SERIAL PRIMARY KEY,
+			name TEXT NOT NULL,
+			price NUMERIC(10,2) NOT NULL
+		)
+	`)
+	if err != nil {
+		log.Fatal("Ошибка создания таблицы Products:", err)
+	}
+
 	fmt.Println("✅ Таблицы успешно созданы!")
 }
 

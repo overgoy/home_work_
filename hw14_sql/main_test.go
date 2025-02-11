@@ -1,7 +1,7 @@
 package main
 
 import (
-	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/DATA-DOG/go-sqlmock"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,18 +9,22 @@ import (
 
 func TestCreateTables(t *testing.T) {
 	db, mock, err := sqlmock.New()
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("Не удалось создать mock для базы данных: %v", err)
+	}
 	defer db.Close()
 
 	mock.ExpectExec("CREATE TABLE IF NOT EXISTS Users").
-		WillReturnResult(sqlmock.NewResult(0, 0))
+		WillReturnResult(sqlmock.NewResult(0, 0)) // Указываем 0 для LastInsertId и RowsAffected
 
 	mock.ExpectExec("CREATE TABLE IF NOT EXISTS Products").
-		WillReturnResult(sqlmock.NewResult(0, 0))
+		WillReturnResult(sqlmock.NewResult(0, 0)) // Указываем 0 для LastInsertId и RowsAffected
 
 	createTables(db)
 
-	assert.NoError(t, mock.ExpectationsWereMet())
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Ожидания не выполнены: %v", err)
+	}
 }
 
 func TestInsertUser(t *testing.T) {
