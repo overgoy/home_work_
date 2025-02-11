@@ -1,6 +1,6 @@
-module hw14_sql
+module github.com/fixme_my_friend/hw14_sql
 
-go 1.23.2
+go 1.20
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
