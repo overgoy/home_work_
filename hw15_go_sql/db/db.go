@@ -18,14 +18,14 @@ func Connect() (*sql.DB, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		return nil, err
+	db, connectionErr := sql.Open("postgres", psqlInfo)
+	if connectionErr != nil {
+		return nil, connectionErr
 	}
 
-	err = db.Ping()
-	if err != nil {
-		return nil, fmt.Errorf("не удалось подключиться к БД: %w", err)
+	pingErr := db.Ping()
+	if pingErr != nil {
+		return nil, fmt.Errorf("не удалось подключиться к БД: %w", pingErr)
 	}
 
 	log.Println("Успешное подключение к БД!")

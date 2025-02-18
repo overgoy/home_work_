@@ -19,17 +19,17 @@ func (s *Server) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req request
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if decodeErr := json.NewDecoder(r.Body).Decode(&req); decodeErr != nil {
 		http.Error(w, "Ошибка декодирования JSON", http.StatusBadRequest)
 		return
 	}
 
-	err := s.Queries.CreateUser(r.Context(), db.CreateUserParams{
+	createUserErr := s.Queries.CreateUser(r.Context(), db.CreateUserParams{
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: req.Password,
 	})
-	if err != nil {
+	if createUserErr != nil {
 		http.Error(w, "Ошибка создания пользователя", http.StatusInternalServerError)
 		return
 	}
@@ -38,14 +38,14 @@ func (s *Server) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
-	users, err := s.Queries.GetUsers(r.Context())
-	if err != nil {
+	users, getUsersErr := s.Queries.GetUsers(r.Context())
+	if getUsersErr != nil {
 		http.Error(w, "Ошибка получения пользователей", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(users); err != nil {
+	if encodeErr := json.NewEncoder(w).Encode(users); encodeErr != nil {
 		http.Error(w, "Ошибка кодирования списка пользователей", http.StatusInternalServerError)
 		return
 	}
@@ -58,16 +58,16 @@ func (s *Server) CreateProductHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req request
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if decodeErr := json.NewDecoder(r.Body).Decode(&req); decodeErr != nil {
 		http.Error(w, "Ошибка декодирования JSON", http.StatusBadRequest)
 		return
 	}
 
-	err := s.Queries.CreateProduct(r.Context(), db.CreateProductParams{
+	createProductErr := s.Queries.CreateProduct(r.Context(), db.CreateProductParams{
 		Name:  req.Name,
 		Price: req.Price,
 	})
-	if err != nil {
+	if createProductErr != nil {
 		http.Error(w, "Ошибка создания продукта", http.StatusInternalServerError)
 		return
 	}
@@ -76,14 +76,14 @@ func (s *Server) CreateProductHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) GetProductsHandler(w http.ResponseWriter, r *http.Request) {
-	products, err := s.Queries.GetProducts(r.Context())
-	if err != nil {
+	products, getProductsErr := s.Queries.GetProducts(r.Context())
+	if getProductsErr != nil {
 		http.Error(w, "Ошибка получения продуктов", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(products); err != nil {
+	if encodeErr := json.NewEncoder(w).Encode(products); encodeErr != nil {
 		http.Error(w, "Ошибка кодирования списка продуктов", http.StatusInternalServerError)
 		return
 	}
