@@ -1,9 +1,10 @@
 package main
 
 import (
+	"log"
+
 	"github.com/fixme_my_friend/hw15_go_sql/db"
 	"github.com/fixme_my_friend/hw15_go_sql/internal"
-	"log"
 )
 
 func main() {

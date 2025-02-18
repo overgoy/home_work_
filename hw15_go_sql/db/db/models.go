@@ -7,7 +7,7 @@ package db
 type Product struct {
 	ID    int32
 	Name  string
-	Price string
+	Price float64
 }
 
 type User struct {

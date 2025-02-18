@@ -15,7 +15,7 @@ INSERT INTO products (name, price) VALUES ($1, $2)
 
 type CreateProductParams struct {
 	Name  string
-	Price string
+	Price float64
 }
 
 func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) error {
