@@ -29,19 +29,15 @@ SELECT id, name, price FROM products;
 -- name: GetProduct :one
 SELECT id, name, price FROM products WHERE id = $1;
 
--- Вставка нового заказа
 -- name: CreateOrder :exec
 INSERT INTO orders (user_id, product_id, quantity, total_price) VALUES ($1, $2, $3, $4);
 
--- Удаление заказа
 -- name: DeleteOrder :exec
 DELETE FROM orders WHERE id = $1;
 
--- Выборка всех заказов
 -- name: GetOrders :many
 SELECT id, user_id, product_id, quantity, total_price, created_at FROM orders;
 
--- Выборка заказов по пользователю
 -- name: GetOrdersByUser :many
 SELECT o.id, o.user_id, o.product_id, p.name AS product_name, o.quantity, o.total_price, o.created_at
 FROM orders o
