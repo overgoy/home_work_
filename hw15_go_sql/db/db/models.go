@@ -4,6 +4,19 @@
 
 package db
 
+import (
+	"database/sql"
+)
+
+type Order struct {
+	ID         int32
+	UserID     int32
+	ProductID  int32
+	Quantity   int
+	TotalPrice float64
+	CreatedAt  sql.NullTime
+}
+
 type Product struct {
 	ID    int32
 	Name  string

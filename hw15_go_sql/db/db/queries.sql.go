@@ -7,7 +7,30 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
+
+const createOrder = `-- name: CreateOrder :exec
+INSERT INTO orders (user_id, product_id, quantity, total_price) VALUES ($1, $2, $3, $4)
+`
+
+type CreateOrderParams struct {
+	UserID     int32
+	ProductID  int32
+	Quantity   int
+	TotalPrice float64
+}
+
+// Вставка нового заказа
+func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) error {
+	_, err := q.db.ExecContext(ctx, createOrder,
+		arg.UserID,
+		arg.ProductID,
+		arg.Quantity,
+		arg.TotalPrice,
+	)
+	return err
+}
 
 const createProduct = `-- name: CreateProduct :exec
 INSERT INTO products (name, price) VALUES ($1, $2)
@@ -38,6 +61,129 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
 	return err
 }
 
+const deleteOrder = `-- name: DeleteOrder :exec
+DELETE FROM orders WHERE id = $1
+`
+
+// Удаление заказа
+func (q *Queries) DeleteOrder(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, deleteOrder, id)
+	return err
+}
+
+const deleteProduct = `-- name: DeleteProduct :exec
+DELETE FROM products WHERE id = $1
+`
+
+func (q *Queries) DeleteProduct(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, deleteProduct, id)
+	return err
+}
+
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users WHERE id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, deleteUser, id)
+	return err
+}
+
+const getOrders = `-- name: GetOrders :many
+SELECT id, user_id, product_id, quantity, total_price, created_at FROM orders
+`
+
+// Выборка всех заказов
+func (q *Queries) GetOrders(ctx context.Context) ([]Order, error) {
+	rows, err := q.db.QueryContext(ctx, getOrders)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Order
+	for rows.Next() {
+		var i Order
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.ProductID,
+			&i.Quantity,
+			&i.TotalPrice,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOrdersByUser = `-- name: GetOrdersByUser :many
+SELECT o.id, o.user_id, o.product_id, p.name AS product_name, o.quantity, o.total_price, o.created_at
+FROM orders o
+         JOIN products p ON o.product_id = p.id
+WHERE o.user_id = $1
+`
+
+type GetOrdersByUserRow struct {
+	ID          int32
+	UserID      int32
+	ProductID   int32
+	ProductName string
+	Quantity    int
+	TotalPrice  float64
+	CreatedAt   sql.NullTime
+}
+
+// Выборка заказов по пользователю
+func (q *Queries) GetOrdersByUser(ctx context.Context, userID int32) ([]GetOrdersByUserRow, error) {
+	rows, err := q.db.QueryContext(ctx, getOrdersByUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetOrdersByUserRow
+	for rows.Next() {
+		var i GetOrdersByUserRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.ProductID,
+			&i.ProductName,
+			&i.Quantity,
+			&i.TotalPrice,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getProduct = `-- name: GetProduct :one
+SELECT id, name, price FROM products WHERE id = $1
+`
+
+func (q *Queries) GetProduct(ctx context.Context, id int32) (Product, error) {
+	row := q.db.QueryRowContext(ctx, getProduct, id)
+	var i Product
+	err := row.Scan(&i.ID, &i.Name, &i.Price)
+	return i, err
+}
+
 const getProducts = `-- name: GetProducts :many
 SELECT id, name, price FROM products
 `
@@ -63,6 +209,55 @@ func (q *Queries) GetProducts(ctx context.Context) ([]Product, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getUser = `-- name: GetUser :one
+SELECT id, name, email FROM users WHERE id = $1
+`
+
+type GetUserRow struct {
+	ID    int32
+	Name  string
+	Email string
+}
+
+func (q *Queries) GetUser(ctx context.Context, id int32) (GetUserRow, error) {
+	row := q.db.QueryRowContext(ctx, getUser, id)
+	var i GetUserRow
+	err := row.Scan(&i.ID, &i.Name, &i.Email)
+	return i, err
+}
+
+const getUserStatistics = `-- name: GetUserStatistics :one
+SELECT
+    u.id AS user_id,
+    u.name AS user_name,
+    COALESCE(SUM(o.total_price), 0) AS total_spent,
+    COALESCE(AVG(p.price), 0) AS avg_product_price
+FROM users u
+         LEFT JOIN orders o ON u.id = o.user_id
+         LEFT JOIN products p ON o.product_id = p.id
+WHERE u.id = $1
+GROUP BY u.id, u.name
+`
+
+type GetUserStatisticsRow struct {
+	UserID          int32
+	UserName        string
+	TotalSpent      interface{}
+	AvgProductPrice interface{}
+}
+
+func (q *Queries) GetUserStatistics(ctx context.Context, id int32) (GetUserStatisticsRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserStatistics, id)
+	var i GetUserStatisticsRow
+	err := row.Scan(
+		&i.UserID,
+		&i.UserName,
+		&i.TotalSpent,
+		&i.AvgProductPrice,
+	)
+	return i, err
 }
 
 const getUsers = `-- name: GetUsers :many
@@ -96,4 +291,40 @@ func (q *Queries) GetUsers(ctx context.Context) ([]GetUsersRow, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateProduct = `-- name: UpdateProduct :exec
+UPDATE products SET name = $2, price = $3 WHERE id = $1
+`
+
+type UpdateProductParams struct {
+	ID    int32
+	Name  string
+	Price float64
+}
+
+func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) error {
+	_, err := q.db.ExecContext(ctx, updateProduct, arg.ID, arg.Name, arg.Price)
+	return err
+}
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users SET name = $2, email = $3, password = $4 WHERE id = $1
+`
+
+type UpdateUserParams struct {
+	ID       int32
+	Name     string
+	Email    string
+	Password string
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.ExecContext(ctx, updateUser,
+		arg.ID,
+		arg.Name,
+		arg.Email,
+		arg.Password,
+	)
+	return err
 }
