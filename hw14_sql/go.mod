@@ -1,9 +1,9 @@
-module github.com/fixme_my_friend/hw15_go_sql
+module github.com/fixme_my_friend/hw14_sql
 
 go 1.20
 
 require (
-	github.com/go-chi/chi/v5 v5.2.1
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/lib/pq v1.10.9
 	github.com/stretchr/testify v1.10.0
 )
