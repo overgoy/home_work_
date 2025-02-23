@@ -11,11 +11,12 @@ import (
 func main() {
 	dbConn, err := db.Connect()
 	if err != nil {
-		log.Fatalf("не удалось подключиться к БД: %v", err) // Необходимо использовать %v для отображения ошибки
+		log.Fatalf("не удалось подключиться к БД: %v", err)
 	}
 	defer func() {
-		if err := dbConn.Close(); err != nil {
-			log.Printf("Ошибка при закрытии соединения с БД: %v", err)
+		closeErr := dbConn.Close()
+		if closeErr != nil {
+			log.Printf("ошибка при закрытии соединения с БД: %v", closeErr)
 		}
 	}()
 
