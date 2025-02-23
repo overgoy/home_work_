@@ -14,15 +14,13 @@ func main() {
 		log.Fatalf("не удалось подключиться к БД: %v", err)
 	}
 	defer func() {
-		closeErr := dbConn.Close()
-		if closeErr != nil {
-			log.Printf("ошибка при закрытии соединения с БД: %v", closeErr)
+		if err := dbConn.Close(); err != nil {
+			log.Printf("ошибка при закрытии соединения с БД: %v", err)
 		}
 	}()
 
-	err = db.CreateTablesIfNotExist(dbConn)
-	if err != nil {
-		log.Fatalf("не удалось создать таблицы: %v", err)
+	if err := db.CreateTablesIfNotExist(dbConn); err != nil {
+		log.Fatalf("не удалось создать таблицы: %w", err)
 	}
 
 	internal.StartServer(dbConn)
