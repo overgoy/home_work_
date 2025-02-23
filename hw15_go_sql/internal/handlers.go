@@ -39,7 +39,7 @@ func (s *Server) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) GetUserHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 32)
 	if err != nil {
 		http.Error(w, "Неверный ID", http.StatusBadRequest)
 		return
@@ -71,7 +71,7 @@ func (s *Server) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 32)
 	if err != nil {
 		http.Error(w, "Неверный ID", http.StatusBadRequest)
 		return
@@ -113,7 +113,7 @@ func (s *Server) GetProductsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) GetProductHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 32)
 	if err != nil {
 		http.Error(w, "Неверный ID", http.StatusBadRequest)
 		return
@@ -145,7 +145,7 @@ func (s *Server) UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 32)
 	if err != nil {
 		http.Error(w, "Неверный ID", http.StatusBadRequest)
 		return
@@ -187,7 +187,7 @@ func (s *Server) GetOrdersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) GetOrdersByUserHandler(w http.ResponseWriter, r *http.Request) {
-	userID, err := strconv.Atoi(r.URL.Query().Get("user_id"))
+	userID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 32)
 	if err != nil {
 		http.Error(w, "Неверный ID пользователя", http.StatusBadRequest)
 		return
@@ -203,7 +203,7 @@ func (s *Server) GetOrdersByUserHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *Server) DeleteOrderHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	id, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 32)
 	if err != nil {
 		http.Error(w, "Неверный ID", http.StatusBadRequest)
 		return
@@ -219,7 +219,7 @@ func (s *Server) DeleteOrderHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) GetUserStatisticsHandler(w http.ResponseWriter, r *http.Request) {
-	userID, err := strconv.Atoi(r.URL.Query().Get("user_id"))
+	userID, err := strconv.ParseInt(r.URL.Query().Get("id"), 10, 32)
 	if err != nil {
 		http.Error(w, "Неверный ID пользователя", http.StatusBadRequest)
 		return
