@@ -11,17 +11,9 @@ import (
 func main() {
 	dbConn, err := db.Connect()
 	if err != nil {
-		log.Fatalf("не удалось подключиться к БД: %v", err)
+		log.Fatal("Ошибка подключения к БД:", err)
 	}
-	defer func() {
-		if err := dbConn.Close(); err != nil {
-			log.Printf("ошибка при закрытии соединения с БД: %v", err)
-		}
-	}()
-
-	if err := db.CreateTablesIfNotExist(dbConn); err != nil {
-		log.Fatalf("не удалось создать таблицы: %w", err)
-	}
+	defer dbConn.Close()
 
 	internal.StartServer(dbConn)
 }
