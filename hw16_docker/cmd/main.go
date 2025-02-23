@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/fixme_my_friend/hw16_docker/db"
@@ -9,9 +10,9 @@ import (
 )
 
 func main() {
-	dbConn, err := db.Connect()
-	if err != nil {
-		log.Fatalf("Ошибка подключения к БД: %w", err)
+	dbConn, connErr := db.Connect()
+	if connErr != nil {
+		log.Fatal(fmt.Errorf("ошибка подключения к БД: %w", connErr))
 	}
 	defer func() {
 		if err := dbConn.Close(); err != nil {
