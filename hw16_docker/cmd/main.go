@@ -11,9 +11,13 @@ import (
 func main() {
 	dbConn, err := db.Connect()
 	if err != nil {
-		log.Fatal("Ошибка подключения к БД:", err)
+		log.Fatalf("Ошибка подключения к БД: %w", err)
 	}
-	defer dbConn.Close()
+	defer func() {
+		if err := dbConn.Close(); err != nil {
+			log.Printf("Ошибка при закрытии соединения с БД: %v", err)
+		}
+	}()
 
 	internal.StartServer(dbConn)
 }
